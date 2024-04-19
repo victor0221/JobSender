@@ -1,5 +1,6 @@
 package jobsender;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
@@ -19,16 +20,15 @@ public class JobSender {
             Socket socket = new Socket(config.getHost(), config.getPort());
             System.out.println("Connected to load balancer.");
             
-            // the block below will send data to our load balancer (EXAMPLE)
-            OutputStream outputStream = socket.getOutputStream();
-            String message = "EXAMPLE DATA";
-            outputStream.write(message.getBytes());
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            Job job = new Job("Task_1", 5000); //ms
+            outputStream.writeObject(job.getJobTime());
+            System.out.println("Job sent to load balancer.");
             socket.close();
             
             while (true) {
 
             }
-            //still needs doing....
         } catch (IOException e) {
             System.out.println("Connection FAILED! Ensure load balancer is started!");
             

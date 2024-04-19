@@ -10,10 +10,10 @@ package jobsender;
  */
 public interface IJob {
     public void setJobName(String name);
-    public void setJobTime(float time);
+    public void setJobTime(int time);
     public String getJobName();
-    public float getJobTime();
-    public void setJob(String name, float time);
+    public int getJobTime();
+    public void setJob(String name, int time);
     public Object[] getJob();
     
 }

@@ -4,21 +4,23 @@
  */
 package jobsender;
 
+import java.io.Serializable;
+
 /**
  *
  * @author usula
  */
-public class Job implements IJob{
+public class Job implements IJob, Serializable{
     
-    private float _time;
+    private int _time;
     private String _name;
     
-    public Job(String name, float time){
+    public Job(String name, int time){
         _time = time;
         _name = name;
     }
     
-    public float getJobTime(){
+    public int getJobTime(){
         return _time;
     }
     public String getJobName(){
@@ -29,13 +31,13 @@ public class Job implements IJob{
     public Object[] getJob(){
         return new Object[]{_name, _time};
     }
-    public void setJobTime(float time){
+    public void setJobTime(int time){
         _time = time;
     }
     public void setJobName(String name){
         _name = name;
     }
-    public void setJob(String name, float time){
+    public void setJob(String name, int time){
         _name = name;
         _time = time;
     }
