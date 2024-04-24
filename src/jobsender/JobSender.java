@@ -15,9 +15,11 @@ public class JobSender {
 
         PromptHandler pm = new PromptHandler();
         Config config = configDataCapture(pm);
+        Socket socket = null;
+        Boolean normalCompletion = false;
 
         try {
-            Socket socket = new Socket(config.getHost(), config.getPort());
+            socket = new Socket(config.getHost(), config.getPort());
             pm.handlePrompt("lbConnected", 0, null);
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
 
@@ -31,10 +33,13 @@ public class JobSender {
 
                 List<Job> jobs = generateJobs(numberofJobs, jobCounter);
                 jobCounter += numberofJobs;
-
-                for (Job job : jobs) {
-                    outputStream.writeObject(job);
-                    pm.handlePrompt("jobDetails", job.getJobTime(), job.getJobName());
+                try {
+                    for (Job job : jobs) {
+                        outputStream.writeObject(job);
+                        pm.handlePrompt("jobDetails", job.getJobTime(), job.getJobName());
+                    }
+                } catch (IOException e) {
+                    errorHandler(e, pm);
                 }
                 pm.handlePrompt("jobsSent", 0, null);
 
@@ -44,21 +49,21 @@ public class JobSender {
 
             } while (continueFlag.equals("y"));
 
-            socket.close();
-            pm.handlePrompt("noMoreJobs", 0, null);
+            normalCompletion = true;
 
-            while (true) {
-
-            }
         } catch (IOException e) {
             pm.handlePrompt("connFailed", 0, null);
-
-            //debug helper
-            Scanner myObj = new Scanner(System.in);
-            pm.handlePrompt("pressY", 0, null);
-            String userInput = myObj.nextLine();
-            if ("y".equals(userInput)) {
-                e.printStackTrace();
+            errorHandler(e, pm);
+        } finally {
+            try {
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                errorHandler(e, pm);
+            }
+            if (normalCompletion) {
+                pm.handlePrompt("noMoreJobs", 0, null);
             }
         }
     }
@@ -85,6 +90,16 @@ public class JobSender {
         int activePort = portCap.nextInt();
 
         return new Config(activePort, activeHost);
+    }
+
+    private static void errorHandler(IOException e, PromptHandler pm) {
+        pm.handlePrompt("generalErr", 0, null);
+        Scanner myObj = new Scanner(System.in);
+        pm.handlePrompt("pressY", 0, null);
+        String userInput = myObj.nextLine();
+        if ("y".equals(userInput)) {
+            e.printStackTrace();
+        }
     }
 
 }

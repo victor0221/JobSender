@@ -46,6 +46,9 @@ public class PromptHandler {
             case "pressY":
                 System.out.println("Press 'y' to view stack: ");
                 break;
+            case "generalErr":
+                System.out.println("AN ERROR HAS OCCURED!");
+                break;
 
         }
     }
