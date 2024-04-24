@@ -1,45 +1,104 @@
 package jobsender;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class JobSender {
-    public static void main(String[] args) {
-        
-        Scanner hostCap = new Scanner(System.in);
-        System.out.println("Enter your host number (e.g. 'localhost'): ");
-        String activeHost = hostCap.nextLine();
-        Scanner portCap = new Scanner(System.in);
-        System.out.println("Enter port number: ");
-        int activePort = portCap.nextInt();
-        Config config = new Config(activePort, activeHost);
-        
-        try {
-            Socket socket = new Socket(config.getHost(), config.getPort());
-            System.out.println("Connected to load balancer.");
-            
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-            Job job = new Job("Task_1", 5000); //ms
-            outputStream.writeObject(job.getJobTime());
-            System.out.println("Job sent to load balancer.");
-            socket.close();
-            
-            while (true) {
 
-            }
+    public static void main(String[] args) {
+
+        PromptHandler pm = new PromptHandler();
+        Config config = configDataCapture(pm);
+        Socket socket = null;
+        Boolean normalCompletion = false;
+
+        try {
+            socket = new Socket(config.getHost(), config.getPort());
+            pm.handlePrompt("lbConnected", 0, null);
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+
+            int jobCounter = 1;
+            String continueFlag;
+
+            do {
+                Scanner jobsCap = new Scanner(System.in);
+                pm.handlePrompt("numOfJobs", 0, null);
+                int numberofJobs = jobsCap.nextInt();
+
+                List<Job> jobs = generateJobs(numberofJobs, jobCounter);
+                jobCounter += numberofJobs;
+                try {
+                    for (Job job : jobs) {
+                        outputStream.writeObject(job);
+                        pm.handlePrompt("jobDetails", job.getJobTime(), job.getJobName());
+                    }
+                } catch (IOException e) {
+                    errorHandler(e, pm);
+                }
+                pm.handlePrompt("jobsSent", 0, null);
+
+                Scanner flagCap = new Scanner(System.in);
+                pm.handlePrompt("moreJobsQ", 0, null);
+                continueFlag = flagCap.nextLine().toLowerCase();
+
+            } while (continueFlag.equals("y"));
+
+            normalCompletion = true;
+
         } catch (IOException e) {
-            System.out.println("Connection FAILED! Ensure load balancer is started!");
-            
-            //debug helper
-            Scanner myObj = new Scanner(System.in);
-            System.out.println("press 'y' to view stack: ");
-            String userInput = myObj.nextLine();
-            if("y".equals(userInput) ){
-               e.printStackTrace(); 
+            pm.handlePrompt("connFailed", 0, null);
+        } finally {
+            try {
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                errorHandler(e, pm);
+            }
+            if (normalCompletion) {
+                pm.handlePrompt("noMoreJobs", 0, null);
             }
         }
     }
-    
+
+    private static List<Job> generateJobs(int numJobs, int startNum) {
+        List<Job> jobs = new ArrayList<>();
+        Random random = new Random();
+        for (int i = startNum; i < startNum + numJobs; i++) {
+            String name = "Job #" + i;
+            int time = 1000 + random.nextInt(9000);
+            jobs.add(new Job(name, time));
+        }
+        return jobs;
+    }
+
+    //helper functions
+    private static Config configDataCapture(PromptHandler pm) {
+        Scanner hostCap = new Scanner(System.in);
+        pm.handlePrompt("host", 0, null);
+        String activeHost = hostCap.nextLine();
+
+        Scanner portCap = new Scanner(System.in);
+        pm.handlePrompt("port", 0, null);
+        int activePort = portCap.nextInt();
+
+        return new Config(activePort, activeHost);
+    }
+
+    private static void errorHandler(IOException e, PromptHandler pm) {
+        pm.handlePrompt("generalErr", 0, null);
+        Scanner myObj = new Scanner(System.in);
+        pm.handlePrompt("pressY", 0, null);
+        String userInput = myObj.nextLine();
+        if ("y".equals(userInput)) {
+            e.printStackTrace();
+        }
+    }
+
 }
