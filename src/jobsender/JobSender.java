@@ -53,7 +53,6 @@ public class JobSender {
 
         } catch (IOException e) {
             pm.handlePrompt("connFailed", 0, null);
-            errorHandler(e, pm);
         } finally {
             try {
                 if (socket != null) {
