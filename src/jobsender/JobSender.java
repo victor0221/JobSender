@@ -1,19 +1,32 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package jobsender;
 
+import jobsender.JOB_TEMPLATE.Job;
+import jobsender.HELPERS.PromptHandler;
+import jobsender.CONFIG.Config;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ *
+ * @author usula
+ */
 public class JobSender {
-
-    public static void main(String[] args) {
-
-        PromptHandler pm = new PromptHandler();
+    
+    public JobSender(){
+        
+    }
+    
+    public void runJobSender(){
+         PromptHandler pm = new PromptHandler();
         Config config = configDataCapture(pm);
         Socket socket = null;
         Boolean normalCompletion = false;
@@ -66,7 +79,8 @@ public class JobSender {
             }
         }
     }
-
+    
+    //helper functions
     private static List<Job> generateJobs(int numJobs, int startNum) {
         List<Job> jobs = new ArrayList<>();
         Random random = new Random();
@@ -78,7 +92,6 @@ public class JobSender {
         return jobs;
     }
 
-    //helper functions
     private static Config configDataCapture(PromptHandler pm) {
         Scanner hostCap = new Scanner(System.in);
         pm.handlePrompt("host", 0, null);
@@ -100,5 +113,4 @@ public class JobSender {
             e.printStackTrace();
         }
     }
-
 }
