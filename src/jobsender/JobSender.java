@@ -48,6 +48,7 @@ public class JobSender {
                 jobCounter += numberofJobs;
                 try {
                     for (Job job : jobs) {
+                        outputStream.writeUTF("JOB_SUBMISSION");
                         outputStream.writeObject(job);
                         pm.handlePrompt("jobDetails", job.getJobTime(), job.getJobName());
                     }
@@ -63,6 +64,8 @@ public class JobSender {
             } while (continueFlag.equals("y"));
 
             normalCompletion = true;
+            outputStream.writeUTF("CLOSE_CONNECTION");
+            outputStream.flush();
 
         } catch (IOException e) {
             pm.handlePrompt("connFailed", 0, null);
