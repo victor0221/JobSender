@@ -49,7 +49,12 @@ public class PromptHandler {
             case "generalErr":
                 System.out.println("AN ERROR HAS OCCURED!");
                 break;
-
+            case "invalidInt":
+                System.out.println("Invalid input. Please enter a valid integer.");
+                break;
+            case "invalidFlag":
+                System.out.println("Invalid input. Please enter 'y' or 'n'.");
+                break;
         }
     }
 
