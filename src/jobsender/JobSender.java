@@ -40,9 +40,7 @@ public class JobSender {
             String continueFlag;
 
             do {
-                Scanner jobsCap = new Scanner(System.in);
-                pm.handlePrompt("numOfJobs", 0, null);
-                int numberofJobs = jobsCap.nextInt();
+                int numberofJobs = captureInt("numOfJobs", pm);
 
                 List<Job> jobs = generateJobs(numberofJobs, jobCounter);
                 jobCounter += numberofJobs;
@@ -57,9 +55,7 @@ public class JobSender {
                 }
                 pm.handlePrompt("jobsSent", 0, null);
 
-                Scanner flagCap = new Scanner(System.in);
-                pm.handlePrompt("moreJobsQ", 0, null);
-                continueFlag = flagCap.nextLine().toLowerCase();
+                continueFlag = captureContinueFlag("moreJobsQ", pm);
 
             } while (continueFlag.equals("y"));
 
@@ -99,12 +95,42 @@ public class JobSender {
         Scanner hostCap = new Scanner(System.in);
         pm.handlePrompt("host", 0, null);
         String activeHost = hostCap.nextLine();
-
-        Scanner portCap = new Scanner(System.in);
-        pm.handlePrompt("port", 0, null);
-        int activePort = portCap.nextInt();
-
+        int activePort = captureInt("port", pm);
+        
         return new Config(activePort, activeHost);
+    }
+    
+    private static int captureInt(String promptCode, PromptHandler pm) {
+        int validInt = 0;
+        boolean validInput = false;
+        while (!validInput) {
+            Scanner scanner = new Scanner(System.in); 
+            pm.handlePrompt(promptCode, 0, null);
+            if (scanner.hasNextInt()) {
+                validInt = scanner.nextInt(); 
+                validInput = true; 
+            } else {
+                pm.handlePrompt("invalidInt", 0, null);
+                scanner.next(); 
+            }
+        }
+        return validInt;
+    }
+
+    private static String captureContinueFlag(String promptCode, PromptHandler pm) {
+        String continueFlag = "";
+        boolean validInput = false;
+        while (!validInput) {
+            Scanner scanner = new Scanner(System.in); 
+            pm.handlePrompt(promptCode, 0, null);
+            continueFlag = scanner.nextLine().toLowerCase();
+            if (continueFlag.equals("y") || continueFlag.equals("n")) {
+                validInput = true; 
+            } else {
+                pm.handlePrompt("invalidFlag", 0, null);
+            }
+        }
+        return continueFlag;
     }
 
     private static void errorHandler(IOException e, PromptHandler pm) {
