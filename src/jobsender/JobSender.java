@@ -92,9 +92,7 @@ public class JobSender {
     }
 
     private static Config configDataCapture(PromptHandler pm) {
-        Scanner hostCap = new Scanner(System.in);
-        pm.handlePrompt("host", 0, null);
-        String activeHost = hostCap.nextLine();
+        String activeHost = captureString("host", pm);
         int activePort = captureInt("port", pm);
         
         return new Config(activePort, activeHost);
@@ -115,6 +113,22 @@ public class JobSender {
             }
         }
         return validInt;
+    }
+    
+    private static String captureString(String promptCode, PromptHandler pm) {
+        String validString = "";
+        boolean validInput = false;
+        while (!validInput) {
+            Scanner scanner = new Scanner(System.in);
+            pm.handlePrompt(promptCode, 0, null);
+            validString = scanner.nextLine().trim();
+            if (!validString.isEmpty()) {
+                validInput = true;
+            } else {
+                pm.handlePrompt("invalidString", 0, null);
+            }
+        }
+        return validString;
     }
 
     private static String captureContinueFlag(String promptCode, PromptHandler pm) {
