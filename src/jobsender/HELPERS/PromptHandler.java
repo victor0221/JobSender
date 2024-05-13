@@ -55,6 +55,9 @@ public class PromptHandler {
             case "invalidFlag":
                 System.out.println("Invalid input. Please enter 'y' or 'n'.");
                 break;
+            case "invalidString":
+                System.out.println("No input. Please enter something, this cannot be left blank.");
+                break;
         }
     }
 
