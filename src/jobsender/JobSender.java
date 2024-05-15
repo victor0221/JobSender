@@ -48,6 +48,7 @@ public class JobSender {
                     for (Job job : jobs) {
                         outputStream.writeUTF("JOB_SUBMISSION");
                         outputStream.writeObject(job);
+                        outputStream.flush();
                         pm.handlePrompt("jobDetails", job.getJobTime(), job.getJobName());
                     }
                 } catch (IOException e) {
